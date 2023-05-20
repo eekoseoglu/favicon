@@ -1,14 +1,12 @@
-@echo off 
+@echo off
 
+set number_of_workers=%1
 
-if [%1]==[] goto default
+if not defined number_of_workers (
+    set number_of_workers=1
+    @echo Running with 1 worker
+) else (
+    @echo Running with %number_of_workers% workers
+)
 
-set /A number_of_workers=%1
-@echo works with arguments %number_of_workers%
-docker-compose up --build --remove-orphans --scale app=%1
-goto :eof
-
-:default
-@echo this is default 1
-docker-compose up --build --remove-orphans --scale app=1
-goto :eof
+docker-compose up --detach --build --remove-orphans --scale app=%number_of_workers%
