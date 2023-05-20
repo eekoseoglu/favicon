@@ -1,11 +1,10 @@
 import xmltodict
 
 class XMLFileParser:
-    def __init__(self, filename):
+    def __init__(self, filename: str):
         self.filename = filename
     
-    def parse_xml_to_dict(self):
+    def parse_xml_to_dict(self) -> dict:
         with open(self.filename, "r") as fileptr:
-            xml_content = fileptr.read()
-            my_dict = xmltodict.parse(xml_content)
+            my_dict = xmltodict.parse(fileptr.read())
         return my_dict

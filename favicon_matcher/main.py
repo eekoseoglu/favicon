@@ -17,10 +17,3 @@ def hello(url: str):
         if hash in fingerprint["example"]:
             return {host_name : 'This is my dict: ' + str(fingerprint["param"])} 
     return None
-
-
-
-# docker build -t ekose/deneme:1.0 . --network=host
-# docker run -p 8000:8000 ekose/hasher:1.1
-# docker compose up -d
-# docker-compose up --build --remove-orphans --scale app=3

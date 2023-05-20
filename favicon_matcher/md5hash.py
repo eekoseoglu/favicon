@@ -1,26 +1,23 @@
 import hashlib
-import sys
 import requests
+import sys
 
 class MD5Hash:
-    def __init__(self, url):
+    def __init__(self, url: str):
         if not isinstance(url, str):
             raise TypeError("URL must be a string")
         self.url = url
 
-    def fetch_content(self):
+    def get_hash(self) -> str:
         try:
             response = requests.get(self.url)
-            return response.content
-        except Exception as e:
-            print(f"Error occured while fetching content: {e}", file=sys.stderr)
-            return None
+            if response.ok:
+                content = response.content
+                md5_hash = hashlib.md5(content).hexdigest()
+                return md5_hash
+            else:
+                print(f"Error: Request failed with status {response.status_code}", file=sys.stderr)
+        except requests.exceptions.RequestException as e:
+            print(f"Error: {e}", file=sys.stderr)
         
-    def get_hash(self):
-        content = self.fetch_content()
-        if content:
-            md5_hash = hashlib.md5(content).hexdigest()
-            return md5_hash
-        else:
-            return None
-        
+        return None
