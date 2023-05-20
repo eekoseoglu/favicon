@@ -2,6 +2,7 @@ import hashlib
 import requests
 import sys
 
+
 class MD5Hash:
     def __init__(self, url: str):
         if not isinstance(url, str):
@@ -19,5 +20,5 @@ class MD5Hash:
                 print(f"Error: Request failed with status {response.status_code}", file=sys.stderr)
         except requests.exceptions.RequestException as e:
             print(f"Error: {e}", file=sys.stderr)
-        
+
         return None
