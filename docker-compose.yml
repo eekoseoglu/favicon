@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  app:
+    build: ./favicon_matcher
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./conf.d:/etc/nginx/conf.d
+    depends_on:
+      - app
+    ports:
+      - 8000:8000
