@@ -1,49 +1,51 @@
 import unittest
-import hashlib
-import sys
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from md5hash import MD5Hash
+import requests
+from test.metabase_content import CONTENT
+
 
 class TestMD5Hash(unittest.TestCase):
-    def test_init(self):
+    def test_url_must_be_string(self):
         with self.assertRaises(TypeError):
             MD5Hash(123)
-        instance = MD5Hash('https://www.google.com')
-        self.assertEqual(instance.url, 'https://www.google.com')
 
-    @patch('requests.get')
-    def test_fetch_content(self, mock_get):
-        instance = MD5Hash('https://www.google.com')
-        mock_get.return_value.content = b'test content'
-        response = instance.fetch_content()
-        mock_get.assert_called_once_with('https://www.google.com')
-        self.assertEqual(response, b'test content')
+    @patch("requests.get")
+    def test_successful_request_returns_md5_hash(self, mock_get):
+        url = "https://www.metabase.com/images/favicon.ico"
+        mock_response = Mock()
+        mock_response.ok = True
+        mock_response.content = CONTENT
+        mock_get.return_value = mock_response
+        expected_output = "4297c114f263c206ed12aaff4b0c7a50"
 
-    @patch('builtins.print')
-    @patch('requests.get')
-    def test_fetch_content_exception(self, mock_get, mock_print):
-        instance = MD5Hash('https://www.google.com')
-        mock_get.side_effect = Exception('Test Exception')
-        response = instance.fetch_content()
-        mock_get.assert_called_once_with('https://www.google.com')
-        mock_print.assert_called_once_with('Error occured while fetching content: Test Exception', file=sys.stderr)
-        self.assertIsNone(response)
+        md5_hash_object = MD5Hash(url)
+        result = md5_hash_object.get_hash()
 
-    @patch.object(MD5Hash, 'fetch_content')
-    def test_get_hash(self, mock_fetch_content):
-        instance = MD5Hash('https://www.google.com')
-        mock_fetch_content.return_value = b'test content'
-        md5_hash = instance.get_hash()
-        mock_fetch_content.assert_called_once()
-        self.assertEqual(md5_hash, hashlib.md5(b'test content').hexdigest())
+        self.assertEqual(result, expected_output)
 
-    @patch.object(MD5Hash, 'fetch_content')
-    def test_get_hash_no_content(self, mock_fetch_content):
-        instance = MD5Hash('https://www.google.com')
-        mock_fetch_content.return_value = None
-        md5_hash = instance.get_hash()
-        mock_fetch_content.assert_called_once()
-        self.assertIsNone(md5_hash)
+    @patch("requests.get")
+    def test_failed_request_returns_none(self, mock_get):
+        url = "https://www.metabase.com/images/favicon.ico"
+        mock_response = Mock()
+        mock_response.ok = False
+        mock_response.status_code = 404
+        mock_get.return_value = mock_response
 
-if __name__ == '__main__':
+        md5_hash_object = MD5Hash(url)
+        result = md5_hash_object.get_hash()
+
+        self.assertIsNone(result)
+
+    @patch("requests.get", side_effect=requests.exceptions.RequestException())
+    def test_exception_returns_none(self, mock_get):
+        url = "https://www.metabase.com/images/favicon.ico"
+
+        md5_hash_object = MD5Hash(url)
+        result = md5_hash_object.get_hash()
+
+        self.assertIsNone(result)
+
+
+if __name__ == "__main__":
     unittest.main()
