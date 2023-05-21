@@ -1,54 +1,22 @@
-# from fastapi import FastAPI
-# from md5hash import MD5Hash
-# from xml_file_parser import XMLFileParser
-# import socket
-
-
-# app = FastAPI()
-
-
-# @app.get("/my-first-api")
-# def hello(url: str):
-#     host_name = socket.gethostname()
-#     md5_hash_generator = MD5Hash(url)
-#     hash_value = md5_hash_generator.get_hash()
-
-#     my_parser = XMLFileParser("favicons.xml")
-#     my_dict = my_parser.parse_xml_to_dict()
-
-#     fingerprints = my_dict["fingerprints"]["fingerprint"]
-#     for fingerprint in fingerprints:
-#         if hash_value in fingerprint["example"]:
-#             return {host_name: 'This is my dict: ' + str(fingerprint["param"])}
-
-#     return None
-
-
 from fastapi import FastAPI
 from md5hash import MD5Hash
 from xml_file_parser import XMLFileParser
-import socket
-
 
 app = FastAPI()
+xml_parser = XMLFileParser("favicons.xml")
+big_dict = xml_parser.parse_xml_to_dict()
 
-# Parse favicons.xml once and cache it.
-my_parser = XMLFileParser("favicons.xml")
-my_dict = my_parser.parse_xml_to_dict()
-
-# Store the fingerprints examples in a set
-fingerprints = set(fingerprint["example"] for fingerprint in my_dict["fingerprints"]["fingerprint"])
-
+hash_dict = {}
+for fingerprint in big_dict["fingerprints"]["fingerprint"]:
+    example_hash = fingerprint["example"]
+    if isinstance(example_hash, list):
+        for hash_value in example_hash:
+            hash_dict[hash_value] = fingerprint["param"]
+    elif isinstance(example_hash, str):
+        hash_dict[example_hash] = fingerprint["param"]
 
 @app.get("/my-first-api")
 def hello(url: str):
-    host_name = socket.gethostname()
     md5_hash_generator = MD5Hash(url)
     hash_value = md5_hash_generator.get_hash()
-
-    if hash_value in fingerprints:
-        for fingerprint in my_dict["fingerprints"]["fingerprint"]:
-            if hash_value == fingerprint["example"]:
-                return {host_name: f'This is my dict: {fingerprint["param"]}'}
-
-    return None
+    return hash_dict.get(hash_value)
