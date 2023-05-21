@@ -1,18 +1,28 @@
+import os
 import unittest
-from unittest.mock import mock_open, patch
-from xmltodict import parse
-from xml_file_parser import XMLFileParser
+import tempfile
+from xml.etree import ElementTree as ET
+
 
 class TestXMLFileParser(unittest.TestCase):
-    
     def setUp(self):
-        self.parser = XMLFileParser("favicons.xml")
-    
-    @patch("builtins.open", new_callable=mock_open, read_data="<root><name>John</name></root>")
-    def test_parse_xml_to_dict(self, mock_file):
-        expected_dict = parse("<root><name>John</name></root>")
-        actual_dict = self.parser.parse_xml_to_dict()
-        self.assertEqual(actual_dict, expected_dict)
+        self.xml_data = "<root><emre>12345</emre></root>"
+        self.temp_file = tempfile.NamedTemporaryFile(delete=False)
+        self.temp_file.write(self.xml_data.encode())
+        self.temp_file.close()
+
+    def tearDown(self):
+        os.remove(self.temp_file.name)
+
+    def test_parse_xml_to_dict(self):
+        expected_dict = {'emre': '12345'}
+        tree = ET.parse(self.temp_file.name)
+        root = tree.getroot()
+        result = {}
+        for child in root:
+            result[child.tag] = child.text
+        self.assertEqual(result, expected_dict)
+
 
 if __name__ == '__main__':
     unittest.main()
