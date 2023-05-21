@@ -7,7 +7,7 @@ class TestMyFirstAPI(unittest.TestCase):
         self.client = TestClient(app)
 
     def test_get_properties_with_existing_hash(self):
-        url = "https://jellyfin.org/images/favicon.ico"
+        url = "https://jellyfin.org/"
         response = self.client.get("/my-first-api", params={"url": url})
         expected_param = [{"@pos":"0","@name":"service.vendor","@value":"Jellyfin"},{"@pos":"0","@name":"service.product","@value":"Media Server"}]
         self.assertEqual(response.status_code, 200)
