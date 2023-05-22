@@ -18,11 +18,8 @@ This will start the FastAPI server on http://localhost:8000/my-first-api, and se
 ## Usage
 The API endpoint expects a query parameter `url` which is the URL of the website you want to get the asset information for.
 
-Send a GET request to the endpoint:
-```http
-GET /my-first-api?url=https://jellyfin.org
-```
-
+Send a request or open a web browser and write to this address(https://jellyfin.org as an example):
+    http://localhost:8000/my-first-api?url=https://jellyfin.org
 You will receive a response in JSON format which contains presence of a specific type of product or software.
 
 ## Stopping Containers
